@@ -1,5 +1,9 @@
+//IMPORTACIONES
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const SALT_I = 10 //este número ayuda a encriptar mejor
 
+//SCHEMA
 const userSchema = mongoose.Schema({
     email: {
         type: String,
@@ -39,6 +43,23 @@ const userSchema = mongoose.Schema({
     }
 })
 
-const User = mongoose.model('User', userSchema, 'users')
+//MIDDLEWARE
+userSchema.pre('save', function(next){ //este pedazo de código se puede resumir con asincronía
+    var user = this
+    if(user.isModified('password')){   
+        bcrypt.genSalt(SALT_I, function(err, salt){
+            if(err) return next(err)
+            bcrypt.hash(user.password, salt, function(err, hash){
+                if(err) return next(err)
+                user.password = hash
+                next()
+            })
+        })
+    } else {
+        next()
+    }
+})
 
+//EXPORTS
+const User = mongoose.model('User', userSchema, 'users')
 module.exports = {User}

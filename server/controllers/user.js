@@ -2,11 +2,10 @@
 const {User} = require('../models/user')
 
 // funciones
-
 function registerNewUser (req, res, next) { //registra usuario nuevo
     const user = new User(req.body)
     user.save((err, doc) => {
-        if(err) return res.json({success: false, err})
+        if(err) return res.status(404).json({success: false, err})
         res.status(200).json({
             success: true,
             userdata: doc
@@ -15,18 +14,24 @@ function registerNewUser (req, res, next) { //registra usuario nuevo
 }
 
 function loginUser (req, res, next) { //inciando sesión con 'users' y creando 'tokens'
-    //1. encuentra el correo
+    //1. comprueba si el correo está registrado
     User.findOne({'email': req.body.email}, (err, user) => {
-        if(!user) return res.json({
+        if(!user) return res.status(400).json({
             loginSuccess: false,
-            message: 'Autenticación fallida: email no encontrado.'
+            message: err
         })
-        res.json({
-            loginSuccess: true,
-            message: `Bienvenido ${req.body.email}`
+        //2. comprueba si la contraseña es correcta
+        user.comparePassword(req.body.password, (err, isMatch) => {
+            if (!isMatch) return res.json({
+                loginSuccess: false,
+                message: 'Password erróneo'
+            })
+            // si todo es correcto, genera un token
+            user.generateToken((err, user) => {
+                
+            })
         })
     })
-    //2. obtén el password y comprúebalo
 }
 
 // exportación de funciones

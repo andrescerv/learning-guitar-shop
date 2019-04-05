@@ -60,6 +60,14 @@ userSchema.pre('save', function(next){ //este pedazo de código se puede resumir
     }
 })
 
+// autenticación de password
+userSchema.methods.comparePassword = function(candidatePassword, cb){
+    bcrypt.compare(candidatePassword, this.password, function(err, isMatch){
+        if(err) return cb(err)
+        cb(null, isMatch)
+    })
+}
+
 //EXPORTS
 const User = mongoose.model('User', userSchema, 'users')
 module.exports = {User}

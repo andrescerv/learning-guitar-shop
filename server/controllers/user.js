@@ -18,7 +18,7 @@ function loginUser (req, res, next) { //inciando sesión con 'users' y creando '
     User.findOne({'email': req.body.email}, (err, user) => {
         if(!user) return res.status(400).json({
             loginSuccess: false,
-            message: err
+            message: 'Authentication failed. Email not found.'
         })
         //2. comprueba si la contraseña es correcta
         user.comparePassword(req.body.password, (err, isMatch) => {
@@ -28,7 +28,11 @@ function loginUser (req, res, next) { //inciando sesión con 'users' y creando '
             })
             // si todo es correcto, genera un token
             user.generateToken((err, user) => {
-                
+                if(err) return res.status(400).send(err)
+                //si todo bien, debemos guardar este token como 'cookie'
+                res.cookie('guitarshop_auth', user.token).status(200).json({
+                    loginSuccess: true
+                })
             })
         })
     })

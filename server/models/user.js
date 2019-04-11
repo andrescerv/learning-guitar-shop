@@ -48,19 +48,16 @@ const userSchema = mongoose.Schema({
 })
 
 //MIDDLEWARE
-userSchema.pre('save', function(next){ //este pedazo de código se puede resumir con asincronía
-    var user = this
-    if(user.isModified('password')){   
-        bcrypt.genSalt(SALT_I, function(err, salt){
-            if(err) return next(err)
-            bcrypt.hash(user.password, salt, function(err, hash){
-                if(err) return next(err)
-                user.password = hash
-                next()
-            })
-        })
-    } else {
-        next()
+userSchema.pre('save', async function(next){ //este pedazo de código se puede resumir con asincronía
+    if(this.isModified('password')){
+        try{
+            const salt = await bcrypt.genSalt(SALT_I)
+            const hash = await bcrypt.hash(this.password, salt)
+            this.password = hash
+            next()
+        } catch(err) {
+            return next(err)
+        }
     }
 })
 

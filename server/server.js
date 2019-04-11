@@ -6,8 +6,6 @@ const mongoose = require('mongoose')
 
 require('dotenv').config()
 
-const {User} = require('./models/user')
-
 const userControllers = require('./controllers/user')
 
 // middlewares

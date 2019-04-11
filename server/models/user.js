@@ -69,13 +69,6 @@ userSchema.methods.comparePassword = function(candidatePassword, cb){
     })
 }
 
-userSchema.methods.comparePassword = function(candidatePassword, cb){
-    bcrypt.compare(candidatePassword, this.password, function(err, isMatch){
-        if(err) return cb(err)
-        cb(null, isMatch)
-    })
-}
-
 userSchema.methods.generateToken = async function(cb){
 
     const token = await jwt.sign(this._id.toHexString(), process.env.SECRET)
